@@ -1,0 +1,14 @@
+scn DLpndPowerSliderMain
+
+begin Function{}
+    if GetGameLoaded
+        ; Init the config
+        Player.AuxVarSetFLT "SlideDelay" (#(GetINISection "Gameplay" "DLpnd\DLpndPowerSliderSettings.ini")["SlideDelay"])
+        Player.AuxVarSetFLT "SlidePower" (#(GetINISection "Gameplay" "DLpnd\DLpndPowerSliderSettings.ini")["SlidePower"])
+        Player.AuxVarSetFLT "KnockForce" (#(GetINISection "Gameplay" "DLpnd\DLpndPowerSliderSettings.ini")["KnockForce"])
+        Player.AuxVarSetFLT "KnockOverTime" (#(GetINISection "Gameplay" "DLpnd\DLpndPowerSliderSettings.ini")["KnockOverTime"])
+
+        Player.AuxVarSetFLT "iDLpndSlideStarted" 0
+        SetEventHandler "OnKeyDown:" + $(#(GetINISection "Gameplay" "DLpnd\DLpndPowerSliderSettings.ini")["SlideKey"]) DLpndPowerSliderScript
+    endif
+end

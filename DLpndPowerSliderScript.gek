@@ -1,0 +1,32 @@
+scn DLpndPowerSliderScript
+
+begin function { int keyCode }
+    if eval (Player.IsMoving && !Player.IsSneaking && !Player.AuxVarGetFLT "iDLpndSlideStarted")
+        ; Block slide chaining
+        Player.AuxVarSetFLT "iDLpndSlideStarted" 1
+        ; Push the Player forward
+        Player.PushActorNoRagdoll (Player.AuxVarGetFLT "SlidePower") (Player.GetAngle z)
+        ; For 1 whole second while sliding, to check if we are touching anyone while sliding
+        CallForSeconds (Player.AuxVarGetFLT "KnockOverTime") (begin function {}
+            ; Get a list of all refs player is touching
+            array_var aContactedRefs = Player.GetContactRefs
+            ; Check if that list actually has any references
+            if eval (Ar_Size aContactedRefs) > -1
+                ; Go over the list
+                forEach array_var aIndex <- aContactedRefs
+                    ; Dereference the to array to get the actor reference id
+                    ref rRef = aIndex["value"]
+                    ; Check if the ref is actually an actor
+                    if eval (rRef.IsActor)
+                        ; Yeet them away from player 
+                        Player.PushActorAway rRef (Player.AuxVarGetFLT "KnockForce")
+                    endif
+                loop
+            endif
+        end)
+        ; After 1 second allow another slide
+        CallAfterSeconds (Player.AuxVarGetFLT "SlideDelay") (begin function {}
+            Player.AuxVarSetFLT "iDLpndSlideStarted" 0
+        end)
+    endif
+end
