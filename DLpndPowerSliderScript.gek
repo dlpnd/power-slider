@@ -6,13 +6,8 @@ begin function { int keyCode }
         Player.AuxVarSetFLT "*iDLpndSlideStarted" 1
         ; Push the Player forward
         Player.PushActorNoRagdoll (Player.AuxVarGetFLT "*SlidePower") (Player.GetAngle z)
-
-        ; Create a blank array in case *AlreadyPushed does not have any values
+        ; Create a blank array to hold all the knocked over actors
         array_var aAlreadyPushed = Ar_Construct "array"
-        if eval (Ar_Size (Player.AuxiliaryVariableGetAsArray "*aAlreadyPushed")) > 0
-            ; If we pushed someone before it got cleared the previous frame, grab them
-            aAlreadyPushed = Player.AuxiliaryVariableGetAsArray "*aAlreadyPushed"
-        endif
 
         ; Check unique formid of all actors we touch while sliding
         CallForSeconds (Player.AuxVarGetFLT "*KnockOverTime") (begin function {}
@@ -25,15 +20,13 @@ begin function { int keyCode }
                         Player.PushActorAway rRef (Player.AuxVarGetFLT "*KnockForce")
                         ; We add the actor ref to the list of pushed, incase we keep touching them on the next frame, so we don't apply force again
                         Ar_Append aAlreadyPushed rRef
-                        Player.AuxiliaryVariableSetFromArray "*aAlreadyPushed" aAlreadyPushed
                     endif
                 loop
             endif
         end)
         CallAfterSeconds (Player.AuxVarGetFLT "*SlideDelay") (begin function {}
-            ; Cooldown over, reset the slide, and null the array of actors we knocked over
+            ; Cooldown over, reset the slide
             Player.AuxVarSetFLT "*iDLpndSlideStarted" 0
-            Player.AuxiliaryVariableErase"*aAlreadyPushed"
         end)
     endif
 end
