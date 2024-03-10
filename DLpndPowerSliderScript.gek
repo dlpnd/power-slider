@@ -1,32 +1,39 @@
 scn DLpndPowerSliderScript
 
 begin function { int keyCode }
-    if eval (Player.IsMoving && !Player.IsSneaking && !Player.AuxVarGetFLT "iDLpndSlideStarted")
+    if eval (Player.IsMoving && !Player.IsSneaking && !Player.AuxVarGetFLT "*iDLpndSlideStarted")
         ; Block slide chaining
-        Player.AuxVarSetFLT "iDLpndSlideStarted" 1
+        Player.AuxVarSetFLT "*iDLpndSlideStarted" 1
         ; Push the Player forward
-        Player.PushActorNoRagdoll (Player.AuxVarGetFLT "SlidePower") (Player.GetAngle z)
-        ; For 1 whole second while sliding, to check if we are touching anyone while sliding
-        CallForSeconds (Player.AuxVarGetFLT "KnockOverTime") (begin function {}
-            ; Get a list of all refs player is touching
+        Player.PushActorNoRagdoll (Player.AuxVarGetFLT "*SlidePower") (Player.GetAngle z)
+
+        ; Create a blank array in case *AlreadyPushed does not have any values
+        array_var aAlreadyPushed = Ar_Construct "array"
+        if eval (Ar_Size (Player.AuxiliaryVariableGetAsArray "*aAlreadyPushed")) > 0
+            ; If we pushed someone before it got cleared the previous frame, grab them
+            aAlreadyPushed = Player.AuxiliaryVariableGetAsArray "*aAlreadyPushed"
+        endif
+
+        ; Check unique formid of all actors we touch while sliding
+        CallForSeconds (Player.AuxVarGetFLT "*KnockOverTime") (begin function {}
             array_var aContactedRefs = Player.GetContactRefs
-            ; Check if that list actually has any references
-            if eval (Ar_Size aContactedRefs) > -1
-                ; Go over the list
+            if eval (Ar_Size aContactedRefs) > 0
                 forEach array_var aIndex <- aContactedRefs
-                    ; Dereference the to array to get the actor reference id
                     ref rRef = aIndex["value"]
-                    ; Check if the ref is actually an actor
-                    if eval (rRef.IsActor)
-                        ; Yeet them away from player 
-                        Player.PushActorAway rRef (Player.AuxVarGetFLT "KnockForce")
+                    ; We only want actors, and actors we didn't already apply the knock over force to
+                    if eval (rRef.IsActor && ((Ar_Find rRef aAlreadyPushed) == Ar_BadNumericIndex))
+                        Player.PushActorAway rRef (Player.AuxVarGetFLT "*KnockForce")
+                        ; We add the actor ref to the list of pushed, incase we keep touching them on the next frame, so we don't apply force again
+                        Ar_Append aAlreadyPushed rRef
+                        Player.AuxiliaryVariableSetFromArray "*aAlreadyPushed" aAlreadyPushed
                     endif
                 loop
             endif
         end)
-        ; After 1 second allow another slide
-        CallAfterSeconds (Player.AuxVarGetFLT "SlideDelay") (begin function {}
-            Player.AuxVarSetFLT "iDLpndSlideStarted" 0
+        CallAfterSeconds (Player.AuxVarGetFLT "*SlideDelay") (begin function {}
+            ; Cooldown over, reset the slide, and null the array of actors we knocked over
+            Player.AuxVarSetFLT "*iDLpndSlideStarted" 0
+            Player.AuxiliaryVariableErase"*aAlreadyPushed"
         end)
     endif
 end
