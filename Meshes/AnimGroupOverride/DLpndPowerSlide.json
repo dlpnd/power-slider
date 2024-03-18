@@ -1,0 +1,10 @@
+[
+    {
+        "mod": "FalloutNV.esm",
+		"form": "14",
+		"folder": "DLpndPowerSlide",
+        "condition": "Player.AuxVarGetFLT \"*_iDLpndSlideStarted\" == 1",
+        "pollCondition": true,
+        "priority": 10
+    }
+]

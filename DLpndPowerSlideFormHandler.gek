@@ -1,0 +1,17 @@
+scn DLpndPowerSlideFormHandler
+
+begin function { ref rFormId }
+    Player.PushActorAway rFormId (Player.AuxVarGetFLT "*KnockForce")
+
+    if eval (!(Player.HasPerk Ninja) && (Player.HasPerk WildWasteland))
+        rFormId.StartCombat Player
+    endif
+
+    if eval ((Player.HasPerk Pyromaniac) && (Player.HasPerk WildWasteland && Player.AuxVarGetFLT "*PerkPyroEnable"))
+        rFormId.CIOS FlamerCritEffect02
+    endif
+
+    if eval ((Player.HasPerk ConcentratedFire) && (Player.HasPerk WildWasteland))
+        rFormId.CrippleLimb (GetRandomInRange 0 6)
+    endif
+end

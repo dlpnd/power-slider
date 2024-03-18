@@ -1,11 +1,13 @@
 scn DLpndPowerSliderScript
 
 begin function { int keyCode }
-    if eval (Player.IsMoving && !Player.IsSneaking && !Player.AuxVarGetFLT "*iDLpndSlideStarted")
-        ; Block slide chaining
-        Player.AuxVarSetFLT "*iDLpndSlideStarted" 1
+    if eval (Player.IsMoving && !Player.IsSneaking && !Player.AuxVarGetFLT "*_iDLpndSlideStarted")
+        ; Block slide chaining and start the Custom Crouch Animation
+        Player.AuxVarSetFLT "*_iDLpndSlideStarted" 1
         ; Push the Player forward
         Player.PushActorNoRagdoll (Player.AuxVarGetFLT "*SlidePower") (Player.GetAngle z)
+        ; Damage AP when sliding
+        Player.DamageActorValue ActionPoints (Player.AuxVarGetFLT "*SlideDamageAP")
         ; Create a blank array to hold all the knocked over actors
         array_var aAlreadyPushed = Ar_Construct "array"
 
@@ -17,7 +19,7 @@ begin function { int keyCode }
                     ref rRef = aIndex["value"]
                     ; We only want actors, and actors we didn't already apply the knock over force to
                     if eval (rRef.IsActor && ((Ar_Find rRef aAlreadyPushed) == Ar_BadNumericIndex))
-                        Player.PushActorAway rRef (Player.AuxVarGetFLT "*KnockForce")
+                        DispatchEventAlt "DLpndPowerSlideFormHandler" rRef
                         ; We add the actor ref to the list of pushed, incase we keep touching them on the next frame, so we don't apply force again
                         Ar_Append aAlreadyPushed rRef
                     endif
@@ -26,7 +28,10 @@ begin function { int keyCode }
         end)
         CallAfterSeconds (Player.AuxVarGetFLT "*SlideDelay") (begin function {}
             ; Cooldown over, reset the slide
-            Player.AuxVarSetFLT "*iDLpndSlideStarted" 0
+            Player.AuxVarSetFLT "*_iDLpndSlideStarted" 0
+            if eval (Player.IsSneaking && (Player.AuxVarGetFLT "*SlideEndStand"))
+                TapKey (Player.AuxVarGetFLT "*SlideKey")
+            endif
         end)
     endif
 end
