@@ -6,12 +6,12 @@ begin function{}
         array_var config = GetINISection "Gameplay" "DLpnd\DLpndPowerSliderSettings.ini" 1
         Player.AuxVarSetFLT "*SlidePower" (config["SlidePower"])
         Player.AuxVarSetFLT "*SlideKey" (config["SlideKey"])
+        Player.AuxVarSetFLT "*SlideEndStand" (config["SlideEndStand"])
         Player.AuxVarSetFLT "*SlideDelay" (config["SlideDelay"])
         Player.AuxVarSetFLT "*SlideDamageAP" (config["SlideDamageAP"])
+        Player.AuxVarSetFLT "*PerkPyroEnable" (config["PerkPyroEnable"])
         Player.AuxVarSetFLT "*KnockOverTime" (config["KnockOverTime"])
         Player.AuxVarSetFLT "*KnockForce" (config["KnockForce"])
-        Player.AuxVarSetFLT "*SlideEndStand" (config["SlideEndStand"])
-        Player.AuxVarSetFLT "*PerkPyroEnable" (config["PerkPyroEnable"])
 
         SetOnKeyDownEventHandler DLpndPowerSliderScript 1 (config["SlideKey"])
         SetEventHandler "DLpndPowerSlideFormHandler" DLpndPowerSlideFormHandler
