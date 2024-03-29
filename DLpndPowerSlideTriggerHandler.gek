@@ -1,0 +1,26 @@
+scn DLpndPowerSlideTriggerHandler
+
+begin function { int keyCode }
+  ; This logic determines under what conditions to enable the slide
+  if eval Player.AuxVarGetFLT "*_iDLpndSlideStarted"
+    return
+  endif 
+  
+  if eval !Player.IsMoving
+    return
+  endif
+  
+  if eval Player.IsSneaking
+    return
+  endif 
+  
+  ; If Player does not have enough AP to do a slide, we prevent them for attempting
+  if eval ((((Player.AuxVarGetFLT "*SlideDamageAP") / 100) * (Player.GetPermAV ActionPoints)) > (Player.GetActorValue ActionPoints))
+    return
+  endif
+
+  ref JVSSprintAnimBaseEffect = Player.AuxVarGetRef "*JVSSprintAnimBaseEffect"
+  if eval (JVSSprintAnimBaseEffect && (Player.HasMagicEffect JVSSprintAnimBaseEffect) || !(JVSSprintAnimBaseEffect))
+    DispatchEventAlt "DLpndPowerSlideHandler"
+  endif
+end
