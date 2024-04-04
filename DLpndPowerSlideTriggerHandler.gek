@@ -24,3 +24,4 @@ begin function { int keyCode }
     DispatchEventAlt "DLpndPowerSlideHandler"
   endif
 end
+asd
