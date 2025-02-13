@@ -27,7 +27,7 @@ begin function { ref rActorRef }
     SetForceSneak rActorRef 1
   endif
   ; Push the Player forward
-  rActorRef.PushActorNoRagdoll (Player.AuxVarGetFLT "*SlidePower") (rActor.GetAngle z)
+  rActorRef.PushActorNoRagdoll (Player.AuxVarGetFLT "*SlidePower") (rActorRef.GetAngle z)
   ; Damage AP when sliding
   rActorRef.DamageActorValue ActionPoints (((Player.AuxVarGetFLT "*SlideDamageAP") / 100) * (rActorRef.GetPermAV ActionPoints))
   ; Create a blank array to hold all the knocked over actors
