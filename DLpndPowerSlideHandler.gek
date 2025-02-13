@@ -52,7 +52,7 @@ begin function { ref rActorRef }
   CallAfterSeconds (Player.AuxVarGetFLT "*SlideDelay") (begin function {}
     ; Cooldown over, reset the slide
     rActorRef.AuxVarSetFLT "*_iDLpndSlideStarted" 0
-    if eval ((rActorRef == PlayerRef) && (rActorRef.IsSneaking) && (rActorRef.AuxVarGetFLT "*SlideEndStand"))
+    if eval ((rActorRef == PlayerRef) && (Player.IsSneaking) && (Player.AuxVarGetFLT "*SlideEndStand"))
       TapKey (Player.AuxVarGetFLT "*SlideKey")
     else
       SetForceSneak rActorRef 0
