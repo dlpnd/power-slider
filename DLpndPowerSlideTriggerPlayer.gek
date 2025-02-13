@@ -1,0 +1,8 @@
+scn DLpndPowerSlideTriggerPlayer
+
+begin function { int keyCode }
+  ref JVSSprintAnimBaseEffect = Player.AuxVarGetRef "*JVSSprintAnimBaseEffect"
+  if eval (JVSSprintAnimBaseEffect && (Player.HasMagicEffect JVSSprintAnimBaseEffect) || !(JVSSprintAnimBaseEffect))
+    DispatchEventAlt "DLpndPowerSlideHandler" PlayerRef
+  endif
+end

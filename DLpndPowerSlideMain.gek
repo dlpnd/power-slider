@@ -19,7 +19,8 @@ begin function{}
     endif
 
     ; Init Event Handlers
-    SetOnKeyDownEventHandler DLpndPowerSlideTriggerHandler 1 (config["SlideKey"])
+    SetOnKeyDownEventHandler DLpndPowerSlideTriggerPlayer 1 (config["SlideKey"])
+    SetEventHandler "OnStartCombat" DLpndPowerSlideTriggerNPC
     SetEventHandler "DLpndPowerSlideHandler" DLpndPowerSlideHandler
     SetEventHandler "DLpndPowerSlideFormHandler" DLpndPowerSlideFormHandler
 

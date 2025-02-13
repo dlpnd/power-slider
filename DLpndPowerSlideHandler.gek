@@ -1,27 +1,49 @@
 scn DLpndPowerSlideHandler
 
 ; Once the slide can start we apply properties to the slide
-begin function {}
+begin function { ref rActorRef }
+
+  ; This logic determines under what conditions to enable the slide
+  if eval rActorRef.AuxVarGetFLT "*_iDLpndSlideStarted"
+    return
+  endif 
+  
+  if eval !rActorRef.IsMoving
+    return
+  endif
+  
+  if eval (rActorRef == PlayerRef && rActorRef.IsSneaking)
+    return
+  endif 
+  
+  ; If Player does not have enough AP to do a slide, we prevent them for attempting
+  if eval ((((Player.AuxVarGetFLT "*SlideDamageAP") / 100) * (rActorRef.GetPermAV ActionPoints)) > (rActorRef.GetActorValue ActionPoints))
+    return
+  endif
+
   ; Block slide chaining and start the Custom Crouch Animation
-  Player.AuxVarSetFLT "*_iDLpndSlideStarted" 1
+  rActorRef.AuxVarSetFLT "*_iDLpndSlideStarted" 1
+  if eval !(rActorRef == PlayerRef)
+    SetForceSneak rActorRef 1
+  endif
   ; Push the Player forward
-  Player.PushActorNoRagdoll (Player.AuxVarGetFLT "*SlidePower") (Player.GetAngle z)
+  rActorRef.PushActorNoRagdoll (Player.AuxVarGetFLT "*SlidePower") (rActor.GetAngle z)
   ; Damage AP when sliding
-  Player.DamageActorValue ActionPoints (((Player.AuxVarGetFLT "*SlideDamageAP") / 100) * (Player.GetPermAV ActionPoints))
+  rActorRef.DamageActorValue ActionPoints (((Player.AuxVarGetFLT "*SlideDamageAP") / 100) * (rActorRef.GetPermAV ActionPoints))
   ; Create a blank array to hold all the knocked over actors
   array_var aAlreadyPushed = Ar_Construct "array"
 
   ; Check unique formid of all actors we touch while sliding
   CallForSeconds (Player.AuxVarGetFLT "*KnockOverTime") (begin function {}
-    array_var aContactedRefs = Player.GetContactRefs
+    array_var aContactedRefs = rActorRef.GetContactRefs
     if eval (Ar_Size aContactedRefs) > 0
       forEach array_var aIndex <- aContactedRefs
-        ref rRef = aIndex["value"]
+        ref rContactedRef = aIndex["value"]
         ; We only want actors, and actors we didn't already apply the knock over force to
-        if eval (rRef.IsActor && ((Ar_Find rRef aAlreadyPushed) == Ar_BadNumericIndex))
-          DispatchEventAlt "DLpndPowerSlideFormHandler" rRef
+        if eval (rContactedRef.IsActor && ((Ar_Find rContactedRef aAlreadyPushed) == Ar_BadNumericIndex))
+          DispatchEventAlt "DLpndPowerSlideFormHandler" rActorRef rContactedRef 
           ; We add the actor ref to the list of pushed, incase we keep touching them on the next frame, so we don't apply force again
-          Ar_Append aAlreadyPushed rRef
+          Ar_Append aAlreadyPushed rContactedRef
         endif
       loop
     endif
@@ -29,9 +51,11 @@ begin function {}
 
   CallAfterSeconds (Player.AuxVarGetFLT "*SlideDelay") (begin function {}
     ; Cooldown over, reset the slide
-    Player.AuxVarSetFLT "*_iDLpndSlideStarted" 0
-    if eval (Player.IsSneaking && (Player.AuxVarGetFLT "*SlideEndStand"))
+    rActorRef.AuxVarSetFLT "*_iDLpndSlideStarted" 0
+    if eval ((rActorRef == PlayerRef) && (rActorRef.IsSneaking) && (rActorRef.AuxVarGetFLT "*SlideEndStand"))
       TapKey (Player.AuxVarGetFLT "*SlideKey")
+    else
+      SetForceSneak rActorRef 0
     endif
   end)
 end
