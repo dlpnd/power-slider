@@ -2,13 +2,13 @@ scn DLpndPowerSlideFormHandler
 
 ; Things here are responsible to apply effects to actors that were knocked over
 begin function { ref rActorRef ref rContactedRef }
-  rActorRef.PushActorAway rContactedRef (rActorRef.AuxVarGetFLT "*KnockForce")
+  rActorRef.PushActorAway rContactedRef (Player.AuxVarGetFLT "*KnockForce")
 
   if eval (!(rActorRef.HasPerk Ninja) && (rActorRef.HasPerk WildWasteland))
     rContactedRef.StartCombat rActorRef
   endif
 
-  if eval ((rActorRef.HasPerk Pyromaniac) && (rActorRef.HasPerk WildWasteland && rActorRef.AuxVarGetFLT "*PerkPyroEnable"))
+  if eval ((rActorRef.HasPerk Pyromaniac) && (rActorRef.HasPerk WildWasteland && Player.AuxVarGetFLT "*PerkPyroEnable"))
     rContactedRef.CIOS FlamerCritEffect02
   endif
 
