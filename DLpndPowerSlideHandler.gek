@@ -4,11 +4,11 @@ scn DLpndPowerSlideHandler
 begin function { ref rActorRef }
 
   ; This logic determines under what conditions to enable the slide
-  if eval rActorRef.AuxVarGetFLT "*_iDLpndSlideStarted"
+  if eval (ActorRef.AuxVarGetFLT "*_iDLpndSlideStarted")
     return
   endif 
   
-  if eval (!rActorRef.IsMoving && rActorRef == PlayerRef)
+  if eval (rActorRef == PlayerRef && !rActorRef.IsMoving)
     return
   endif
   
@@ -16,26 +16,25 @@ begin function { ref rActorRef }
     return
   endif 
   
-  ; If Player does not have enough AP to do a slide, we prevent them for attempting
+  ; If Actor does not have enough AP to do a slide, we prevent them for attempting
   if eval ((((Player.AuxVarGetFLT "*SlideDamageAP") / 100) * (rActorRef.GetPermAV ActionPoints)) > (rActorRef.GetActorValue ActionPoints))
     return
   endif
 
   ; Block slide chaining and start the Custom Crouch Animation
   rActorRef.AuxVarSetFLT "*_iDLpndSlideStarted" 1
-  if eval !(rActorRef == PlayerRef)
-	print "trying to sneak"
+
+  ; Push the Actor forward
+  if eval (rActorRef == PlayerRef)
+    rActorRef.PushActorNoRagdoll (Player.AuxVarGetFLT "*SlidePower") (rActorRef.GetAngle z)
+  else
+    rActorRef.PushActorNoRagdoll 15 (rActorRef.GetAngle z)
     rActorRef.PlayAnimationPath "AnimGroupOverride\DLpndPowerSlide\_male\sneak1hmidle.kf"
   endif
-  ; Push the Player forward
-	print "lets get pushy"
-  if eval rActorRef != PlayerRef
-    rActorRef.PushActorNoRagdoll 15 (rActorRef.GetAngle z)
-  else
-    rActorRef.PushActorNoRagdoll (Player.AuxVarGetFLT "*SlidePower") (rActorRef.GetAngle z)
-  endif
+
   ; Damage AP when sliding
   rActorRef.DamageActorValue ActionPoints (((Player.AuxVarGetFLT "*SlideDamageAP") / 100) * (rActorRef.GetPermAV ActionPoints))
+
   ; Create a blank array to hold all the knocked over actors
   array_var aAlreadyPushed = Ar_Construct "array"
 
