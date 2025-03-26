@@ -8,7 +8,7 @@ begin function { ref rActorRef }
     return
   endif 
   
-  if eval !rActorRef.IsMoving
+  if eval (!rActorRef.IsMoving && rActorRef == PlayerRef)
     return
   endif
   
@@ -24,10 +24,16 @@ begin function { ref rActorRef }
   ; Block slide chaining and start the Custom Crouch Animation
   rActorRef.AuxVarSetFLT "*_iDLpndSlideStarted" 1
   if eval !(rActorRef == PlayerRef)
-    SetForceSneak rActorRef 1
+	print "trying to sneak"
+    rActorRef.PlayAnimationPath "AnimGroupOverride\DLpndPowerSlide\_male\sneak1hmidle.kf"
   endif
   ; Push the Player forward
-  rActorRef.PushActorNoRagdoll (Player.AuxVarGetFLT "*SlidePower") (rActorRef.GetAngle z)
+	print "lets get pushy"
+  if eval rActorRef != PlayerRef
+    rActorRef.PushActorNoRagdoll 15 (rActorRef.GetAngle z)
+  else
+    rActorRef.PushActorNoRagdoll (Player.AuxVarGetFLT "*SlidePower") (rActorRef.GetAngle z)
+  endif
   ; Damage AP when sliding
   rActorRef.DamageActorValue ActionPoints (((Player.AuxVarGetFLT "*SlideDamageAP") / 100) * (rActorRef.GetPermAV ActionPoints))
   ; Create a blank array to hold all the knocked over actors
@@ -54,8 +60,6 @@ begin function { ref rActorRef }
     rActorRef.AuxVarSetFLT "*_iDLpndSlideStarted" 0
     if eval ((rActorRef == PlayerRef) && (Player.IsSneaking) && (Player.AuxVarGetFLT "*SlideEndStand"))
       TapKey (Player.AuxVarGetFLT "*SlideKey")
-    else
-      SetForceSneak rActorRef 0
     endif
   end)
 end

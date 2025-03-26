@@ -1,9 +1,12 @@
 scn DLpndPowerSlideTriggerNPC
 
 begin function { ref rTarget, ref rStarter }
-  if eval (rTarget == PlayerRef && rStarter !== PlayerRef)
-    if eval (rStarter.GetDistance3D rTarget <= 100)
-        DispatchEventAlt "DLpndPowerSlideHandler" rStarter
-    endif
+	print "rTarget: " + $rTarget
+	print "rStarter: " + $rStarter
+  if eval ((rTarget != PlayerRef) && (rStarter == PlayerRef))
+	print "ass"
+    ;if eval (rStarter.GetDistance3D rTarget =< 100)
+        DispatchEventAlt "DLpndPowerSlideHandler" rTarget
+    ;endif
   endif
 end
